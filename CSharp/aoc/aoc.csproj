@@ -8,7 +8,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="year_2015\day09.in" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="year_2015\day09.in">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Superpower" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="year_2015\day09.in">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 

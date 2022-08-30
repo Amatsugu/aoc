@@ -15,7 +15,7 @@ public class AdventOfCode
         // y_2015.Day6("./year_2015/day06.in"); // Done
         // y_2015.Day7("./year_2015/day07.in"); 
         // y_2015.Day8("./year_2015/day08.in");  // Done
-        y_2015.Day9("./year_2015/day09.in");
+        y_2015.Day9("year_2015/day09.in");
 
 
 

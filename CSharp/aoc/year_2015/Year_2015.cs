@@ -384,7 +384,6 @@ public static class y_2015
         int p2 = 0;
 
         List<City> citiesList = new();
-        City? rootCity = default;
 
         TextParser<(string inCity, string outCity, int dist)> parser =
             (from City1 in Character.Letter.AtLeastOnce()
@@ -398,20 +397,28 @@ public static class y_2015
         foreach (string line in usrIn)
         {
             var (incity, outcity, dist) = parser.Parse(line);
-            if (rootCity == null) rootCity = new City(incity);
-            citiesList.Add(rootCity.addCity(incity, new City(outcity), dist)!);
+			//if (rootCity == null) rootCity = new City(incity);
+			var curCity = citiesList.FirstOrDefault(c => c.name == incity);
+
+			if(curCity == null)
+			{
+				curCity = new City(incity);
+				citiesList.Add(curCity);
+			}
+			var newCity = citiesList.FirstOrDefault(c => c.name == outcity);
+			if (newCity == null)
+			{
+				newCity = new City(outcity);
+				citiesList.Add(newCity);
+			}
+			curCity.addCity(newCity, dist);
+
+            //citiesList.Add(rootCity.addCity(incity, new City(outcity), dist)!);
         }
 
-        citiesList.Add(rootCity!);
-        List<City> things = new();
 
 
-        Console.WriteLine(citiesList.Contains(rootCity));
-
-        // var asdf = rootCity.traverseTo(things, citiesList.First(v => v.name == "Arbre"));
-
-        // Console.WriteLine(string.Join(" | ", things));
-
+		(p1, p2) = City.FindShortest(citiesList);
 
 
         Console.WriteLine($"Part 1: {p1}\nPart 2: {p2}");
@@ -438,32 +445,49 @@ class City : IEquatable<City>
         return inCity; //and that
     }
 
-    public City? addCity(string inCity, City outCity, int distance)
-    {
-        if (name == inCity) return addCity(outCity, distance);
+	public Connection GetConnection(City city)
+	{
+		return connections.First(c => c.City == city);
+	}
 
-        foreach (var (city, _) in connections)
-        {
-            var aux = city.addCity(inCity, outCity, distance);
-            if (aux != null) return aux;
-        }
+	public static (int min, int max) FindShortest(List<City> cities)
+	{
+		var min = int.MaxValue;
+		var max = int.MinValue;
+		var result = GeneratePermutations(cities);
 
-        return null;
-    }
+		for (int i = 0; i < result.Count; i++)
+		{
+			var route = result[i];
+			var cost = 0;
+			for (int j = 0; j < route.Count - 1; j++)
+			{
+				var city = route[j];
+				var next = route[j + 1];
+				cost += city.GetConnection(next).Distance;
+			}
+			if (min > cost)
+				min = cost;
+			if(max < cost)
+				max = cost;
+		}
+		return (min, max);
 
-    public int traverseTo(List<City> visitedCities, City destinationCity)
-    {
-        visitedCities.Add(this);
-        if (name == destinationCity.name) return 0;
-        foreach (Connection conn in connections)
-        {
-            if (visitedCities.Contains(conn.City)) continue;
-            var aux = conn.City.traverseTo(visitedCities, destinationCity);
-            if (aux != -1) return aux + conn.Distance;
-        }
+	}
 
-        return -1;
-    }
+
+	private static List<List<T>> GeneratePermutations<T>(List<T> cities)
+	{
+		return permutate(cities, Enumerable.Empty<T>());
+		List<List<T>> permutate(IEnumerable<T> reminder, IEnumerable<T> prefix)
+		{
+			return !reminder.Any() 
+				? new List<List<T>> { prefix.ToList() } 
+				: reminder.SelectMany((c, i) => permutate(
+					reminder.Take(i).Concat(reminder.Skip(i + 1)).ToList(),
+					prefix.Append(c))).ToList();
+		}
+	}
 
     public bool Equals(City? other)
     {
